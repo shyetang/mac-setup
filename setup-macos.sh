@@ -69,10 +69,8 @@ while read -r line; do
   # 跳过空行和纯注释行
   [[ -z "$line" || "$line" =~ ^# ]] && continue
   
-  # 去掉行中的注释部分（# 及其之后的内容）
-  pkg="${line%% #*}"
-  # 去掉前后空格
-  pkg="$(echo "$pkg" | xargs)"
+  # 去掉行中的注释部分（# 及其之后的内容）和前后空格
+  pkg=$(echo "$line" | sed 's/#.*//' | xargs)
   
   # 再次检查去掉注释后是否为空
   [[ -z "$pkg" ]] && continue

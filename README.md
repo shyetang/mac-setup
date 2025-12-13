@@ -152,30 +152,36 @@ vim brew-packages.txt
 示例：
 ```bash
 # ===== CLI 工具 =====
-git           # 版本控制
-wget          # 文件下载
-ripgrep       # 快速搜索
-fd            # 友好的 find 替代品
-fzf           # 模糊查找
-jq            # JSON 处理
-bat           # Cat 增强版
-htop          # 进程监控
-zoxide        # 目录导航
+git
+wget
+ripgrep
+fd
+fzf
+jq
+bat
+htop
+zoxide
 
 # ===== 构建工具 =====
-cmake         # 跨平台编译
-pkg-config    # 库文件定位
+cmake
+pkg-config
 
 # ===== GUI 应用 =====
-keka          # 压缩工具
-drawio        # 流程图软件
-iina          # 视频播放器
-warp          # 现代终端
-raycast       # 快速启动器
-google-chrome # 网页浏览器
-devtoys       # 开发者工具集
-aldente       # 电池管理
+keka
+drawio
+iina
+warp
+raycast
+google-chrome
+devtoys
+aldente
 ```
+
+**格式说明：**
+- 每行一个包名（必须是 Homebrew 可识别的名称）
+- 以 `#` 开头的行为分类注释（自动跳过）
+- 空行自动跳过
+- **不支持行内注释**，注释必须单独成行
 
 #### 自定义编程语言版本（可选）
 编辑 `setup-macos.sh` 第 7-17 行的配置：

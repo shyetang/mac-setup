@@ -1,38 +1,38 @@
 # ===== CLI 工具 =====
-git              # 版本控制系统
-wget             # 文件下载工具
-ripgrep          # 快速文本搜索（比 grep 快 10+ 倍）
-fd               # 文件查找工具（find 的现代替代品）
-fzf              # 模糊查找工具（增强 bash/zsh）
-jq               # JSON 处理工具
-bat              # Cat 增强版（语法高亮）
-htop             # 进程监控工具（top 的增强版）
-zoxide           # 目录导航工具（智能 cd）
+git
+wget
+ripgrep
+fd
+fzf
+jq
+bat
+htop
+zoxide
 
 # ===== GNU 工具 =====
-# coreutils         # 注意：会在 PATH 中优先级前置，可能影响系统命令
-# gnu-sed           # 注意：可能与 BSD sed 冲突
-# gnu-tar           # 注意：可能与 BSD tar 冲突
+# coreutils       # 注意：会在 PATH 中优先级前置，可能影响系统命令
+# gnu-sed         # 注意：可能与 BSD sed 冲突
+# gnu-tar         # 注意：可能与 BSD tar 冲突
 
 # ===== 构建工具 =====
-cmake            # 跨平台编译工具
-pkg-config       # 库文件定位工具
+cmake
+pkg-config
 
 # ===== GUI 应用 =====
-keka             # 压缩/解压工具
-drawio           # 流程图和图表工具
-iina             # 视频播放器
-baidunetdisk     # 百度网盘客户端
-appcleaner       # 应用卸载工具
-warp             # 现代终端（Rust 开发）
-raycast          # 快速启动器（Spotlight 替代品）
-openinterminal   # 右键菜单打开终端
-devtoys          # 开发者工具集
-popclip          # 快捷粘贴板工具
-google-chrome    # 网页浏览器
-buzz             # 本地音频转录工具
-betterdisplay    # 显示器管理工具
-aldente          # 电池健康管理工具
+keka
+drawio
+iina
+baidunetdisk
+appcleaner
+warp
+raycast
+openinterminal
+devtoys
+popclip
+google-chrome
+buzz
+betterdisplay
+aldente
 
 # ===== Shell & Prompt =====
-starship         # 现代化命令行提示符
+starship
