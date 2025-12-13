@@ -102,13 +102,21 @@ add_block "### AUTO-SETUP-CORE ###" '
 ### AUTO-SETUP-CORE ###
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""
-plugins=(git z sudo extract fzf)
+plugins=(git sudo extract fzf colored-man-pages)
 source $ZSH/oh-my-zsh.sh
 
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 ### END AUTO-SETUP-CORE ###
+'
+
+add_block "### AUTO-ZOXIDE ###" '
+### AUTO-ZOXIDE ###
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+### END AUTO-ZOXIDE ###
 '
 
 # ===============================

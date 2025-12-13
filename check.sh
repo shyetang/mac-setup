@@ -70,6 +70,7 @@ echo "✨ 配置块检查"
 # 4. 配置块完整性
 blocks=(
   "SETUP-CORE"
+  "ZOXIDE"
   "RUST"
   "PYENV"
   "FNM"

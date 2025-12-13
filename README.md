@@ -18,6 +18,8 @@
 ### 系统工具
 - **Homebrew** - 自动安装或更新
 - **Oh My Zsh** - Shell 配置和主题
+  - **插件配置** - 自动启用 git、sudo、extract、fzf、colored-man-pages 五个插件
+  - **zoxide 集成** - 智能目录导航（替代 z 插件）
 - **Starship** - 现代化命令行提示符（可选）
 - **fzf** - 模糊查找工具补全
 
@@ -33,6 +35,74 @@
 - 从 `brew-packages.txt` 自动解析软件列表
 - 智能判断 cask（GUI）vs 普通包（CLI）
 - 增量更新 Brewfile，不覆盖用户修改
+
+### Oh My Zsh 插件详解
+
+本脚本自动配置以下 Oh My Zsh 插件：
+
+| 插件 | 功能 | 说明 |
+|------|------|------|
+| **git** | Git 别名与补全 | 提供常用 git 命令简写（如 `ga`→`git add`）|
+| **sudo** | 快速加 sudo | 按两次 ESC 快速在命令前添加 `sudo` |
+| **extract** | 通用解压 | `x <file>` 自动识别格式解压任何类型文件 |
+| **fzf** | 模糊搜索补全 | 增强 shell 补全，ctrl-r 历史命令搜索，ctrl-t 文件选择 |
+| **colored-man-pages** | 彩色 man 手册 | 为 man 页面添加语法高亮，提升可读性 |
+
+#### zoxide 集成
+
+脚本自动安装并集成 [zoxide](https://github.com/ajeetdsouza/zoxide)，这是一个更智能的目录导航工具：
+
+```bash
+z <path>         # 模糊匹配并跳转到历史目录
+z <path> -i      # 交互式选择（使用 fzf）
+zi               # 交互式选择最常访问的目录
+```
+
+**zoxide vs z 插件：**
+- ❌ 脚本**不使用** OMZ 的 z 插件，以避免冲突
+- ✅ 使用独立的 zoxide 工具，更聪明、更快速
+- 🔗 与 fzf 完美配合，提供交互式目录选择
+
+#### 工具协同
+
+```
+fzf (模糊查找引擎)
+  ↓
+OMZ fzf 插件 (增强 shell 补全)
+  + zoxide (智能目录导航)
+  = 强大的交互式导航体验
+```
+
+**常用组合：**
+```bash
+# 1. 快速跳转到历史目录
+z django  # 模糊匹配包含 "django" 的历史目录
+
+# 2. 交互式目录选择
+zi        # 弹出 fzf 菜单，选择要跳转的目录
+
+# 3. 命令历史搜索
+ctrl+r    # fzf 交互式搜索历史命令
+
+# 4. 文件路径补全
+vim **<TAB>  # fzf 浏览文件树选择要编辑的文件
+```
+
+#### 自定义插件
+
+如需修改 OMZ 插件配置，编辑 `setup-macos.sh` 的这一行：
+
+```bash
+# 第 104 行附近
+plugins=(git sudo extract fzf colored-man-pages)
+```
+
+例如添加更多插件：
+```bash
+plugins=(git sudo extract fzf colored-man-pages autojump web-search)
+```
+
+⚠️ **重要提示：** 修改后重新运行脚本，或手动编辑 `~/.zshrc` 中的 `AUTO-SETUP-CORE` 块。
 
 ## 🚀 快速开始
 
@@ -598,50 +668,6 @@ vim brew-packages.txt
 ./setup-macos.sh
 ```
 
-## 📚 文件说明
-
-### brew-packages.txt 的核心作用
-
-`brew-packages.txt` 是整个脚本系统的**配置中枢**，其重要性不可低估：
-
-**三个核心作用：**
-
-1. **定义环境** 
-   - 决定你的开发环境包含哪些工具
-   - 每个软件都有清晰的中文说明，解释用途
-   - 支持分类组织（CLI、构建工具、GUI、Shell）
-
-2. **团队协作**
-   ```bash
-   # 团队成员只需执行一行命令
-   ./setup-macos.sh
-   
-   # 所有人都获得完全相同的开发环境
-   # 无需繁琐的沟通和手动配置
-   ```
-
-3. **版本控制**
-   ```bash
-   git add brew-packages.txt
-   git commit -m "Add DevToys and Buzz for better workflow"
-   
-   # 追踪每个软件的添加和移除历史
-   git log --oneline brew-packages.txt
-   ```
-
-**与其他文件的关系：**
-```
-你的需求
-    ↓
-brew-packages.txt (你的软件清单 - 配置)
-    ↓
-setup-macos.sh (初始化脚本 - 执行)
-    ↓
-rollback.sh (回滚脚本 - 撤销)
-    ↓
-README.md (文档 - 说明)
-```
-
 ---
 
 ### 文件详细说明
@@ -809,18 +835,6 @@ git add brew-packages.txt
 git commit -m "Update packages"
 ```
 
----
-
-## 📝 文件修改历史
-
-### 最近更新
-- ✅ 更新 Node.js 版本到 22.x
-- ✅ 添加所有软件的详细说明和中文注释
-- ✅ 完善 brew-packages.txt 核心作用说明
-- ✅ 增加软件使用场景和选择指南
-
----
-
 ## 🤝 贡献建议
 
 欢迎改进和建议！您可以：
@@ -836,9 +850,4 @@ git commit -m "Update packages"
 
 MIT License - 自由使用和修改
 
----
-
-**最后更新：2025年12月13日**  
-**脚本版本：2.0**  
-**文档完整性：✅ 100%**
 
