@@ -53,15 +53,30 @@ brew update || echo "⚠️ Homebrew 更新失败（可能是网络问题）"
 # ===============================
 # 2️⃣ 合并 Brewfile（不覆盖）
 # ===============================
-if [ ! -f "brew-packages.txt" ]; then
+# 获取执行脚本时的目录
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PACKAGES_FILE="$SCRIPT_DIR/brew-packages.txt"
+
+if [ ! -f "$PACKAGES_FILE" ]; then
   echo "❌ 错误：未找到 brew-packages.txt 文件"
+  echo "   期望位置: $PACKAGES_FILE"
   exit 1
 fi
 
 touch "$BREWFILE"
 
-while read -r pkg; do
-  [[ -z "$pkg" || "$pkg" =~ ^# ]] && continue
+while read -r line; do
+  # 跳过空行和纯注释行
+  [[ -z "$line" || "$line" =~ ^# ]] && continue
+  
+  # 去掉行中的注释部分（# 及其之后的内容）
+  pkg="${line%% #*}"
+  # 去掉前后空格
+  pkg="$(echo "$pkg" | xargs)"
+  
+  # 再次检查去掉注释后是否为空
+  [[ -z "$pkg" ]] && continue
+  
   if ! grep -q "\"$pkg\"" "$BREWFILE"; then
     if brew info --cask "$pkg" >/dev/null 2>&1; then
       echo "cask \"$pkg\"" >> "$BREWFILE"
@@ -69,7 +84,7 @@ while read -r pkg; do
       echo "brew \"$pkg\"" >> "$BREWFILE"
     fi
   fi
-done < brew-packages.txt
+done < "$PACKAGES_FILE"
 
 echo "▶ 安装 Brewfile 软件"
 brew bundle --file="$BREWFILE" || echo "⚠️ 部分软件包安装失败（可能已安装或网络问题）"
