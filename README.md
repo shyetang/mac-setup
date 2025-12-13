@@ -175,6 +175,8 @@ raycast
 google-chrome
 devtoys
 aldente
+visual-studio-code
+zed
 ```
 
 **格式说明：**
@@ -377,6 +379,8 @@ drawio           # 注释：软件用途
 | **Buzz** | 本地音频转录工具 | 将音频/视频转为文字（离线，基于 OpenAI Whisper） |
 | **BetterDisplay** | 显示器管理工具 | 调节分辨率、刷新率，管理多屏 |
 | **AlDente** | 电池健康管理 | 限制充电到指定百分比，延长电池寿命 |
+| **Visual Studio Code** | 代码编辑器 | 轻量级但功能强大的代码编辑器，支持大量扩展 |
+| **Zed** | 高性能代码编辑器 | Rust 开发的现代编辑器，启动快速、协作功能强大 |
 
 **何时需要这些工具：**
 - 日常开发工作中需要各种辅助工具

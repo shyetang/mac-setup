@@ -33,6 +33,8 @@ google-chrome
 buzz
 betterdisplay
 aldente
+visual-studio-code
+zed
 
 # ===== Shell & Prompt =====
 starship
