@@ -1,4 +1,4 @@
-# ===== CLI 工具 =====
+# ===== Formulae (CLI 工具) =====
 git
 wget
 ripgrep
@@ -8,17 +8,11 @@ jq
 bat
 htop
 zoxide
-
-# ===== GNU 工具 =====
-# coreutils       # 注意：会在 PATH 中优先级前置，可能影响系统命令
-# gnu-sed         # 注意：可能与 BSD sed 冲突
-# gnu-tar         # 注意：可能与 BSD tar 冲突
-
-# ===== 构建工具 =====
 cmake
 pkg-config
+starship
 
-# ===== GUI 应用 =====
+# ===== Casks (GUI 应用) =====
 keka
 drawio
 iina
@@ -35,6 +29,3 @@ betterdisplay
 aldente
 visual-studio-code
 zed
-
-# ===== Shell & Prompt =====
-starship

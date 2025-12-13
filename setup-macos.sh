@@ -65,21 +65,37 @@ fi
 
 touch "$BREWFILE"
 
+# 追踪当前所在分类
+current_type=""
+
 while read -r line; do
-  # 跳过空行和纯注释行
-  [[ -z "$line" || "$line" =~ ^# ]] && continue
+  # 跳过空行
+  [[ -z "$line" ]] && continue
   
-  # 去掉行中的注释部分（# 及其之后的内容）和前后空格
+  # 识别分类标记
+  if [[ "$line" =~ ^#.*Formulae ]]; then
+    current_type="formula"
+    continue
+  elif [[ "$line" =~ ^#.*Casks ]]; then
+    current_type="cask"
+    continue
+  fi
+  
+  # 跳过其他注释行
+  [[ "$line" =~ ^# ]] && continue
+  
+  # 去掉行中的注释部分和前后空格
   pkg=$(echo "$line" | sed 's/#.*//' | xargs)
   
   # 再次检查去掉注释后是否为空
   [[ -z "$pkg" ]] && continue
   
+  # 根据分类添加到 Brewfile
   if ! grep -q "\"$pkg\"" "$BREWFILE"; then
-    if brew info --cask "$pkg" >/dev/null 2>&1; then
-      echo "cask \"$pkg\"" >> "$BREWFILE"
-    else
+    if [ "$current_type" = "formula" ]; then
       echo "brew \"$pkg\"" >> "$BREWFILE"
+    elif [ "$current_type" = "cask" ]; then
+      echo "cask \"$pkg\"" >> "$BREWFILE"
     fi
   fi
 done < "$PACKAGES_FILE"
