@@ -1,2 +1,844 @@
 # mac-setup
-My Mac environment initializes the project.
+
+🚀 **完全自动化的 macOS 环境初始化与配置脚本**
+
+一键部署开发环境，支持安全的三级回滚机制。无需手动配置，所有操作都可追踪和撤销。
+
+## ✨ 特性
+
+- ✅ **一键初始化** - 自动安装和配置整个开发环境
+- ✅ **三级回滚** - soft/env/full，灵活应对各种需求
+- ✅ **智能幂等** - 安全多次运行，不会重复安装
+- ✅ **自动备份** - 所有修改前自动备份，数据不会丢失
+- ✅ **跨平台** - 兼容 macOS 和 Linux（使用兼容的 awk/bash）
+- ✅ **清晰日志** - 实时反馈执行进度，问题一目了然
+
+## 🎯 功能清单
+
+### 系统工具
+- **Homebrew** - 自动安装或更新
+- **Oh My Zsh** - Shell 配置和主题
+- **Starship** - 现代化命令行提示符（可选）
+- **fzf** - 模糊查找工具补全
+
+### 编程语言环境
+| 语言 | 管理工具 | 版本策略 |
+|------|---------|--------|
+| **Rust** | rustup | 最新稳定版 |
+| **Python** | pyenv | 3.12.x 最新 |
+| **Node.js** | fnm | 22.x 最新 |
+| **Java** | jenv | 21 LTS |
+
+### 软件包管理
+- 从 `brew-packages.txt` 自动解析软件列表
+- 智能判断 cask（GUI）vs 普通包（CLI）
+- 增量更新 Brewfile，不覆盖用户修改
+
+## 🚀 快速开始
+
+### 📌 关键说明：brew-packages.txt 的重要性
+
+**`brew-packages.txt` 是什么？**
+
+这是脚本的**核心配置文件**，定义了将要安装的所有软件包。它相当于一个"购物清单"，告诉脚本应该为你安装哪些工具。
+
+**工作原理：**
+```
+brew-packages.txt (软件列表)
+        ↓
+    setup-macos.sh (解析和安装)
+        ↓
+    Brewfile (Homebrew 配置)
+        ↓
+    brew bundle (统一安装)
+```
+
+**为什么重要？**
+- ✅ **自定义安装** - 只装你需要的，不装多余的
+- ✅ **易于维护** - 用 git 管理你的开发环境配置
+- ✅ **团队协作** - 让团队成员拥有完全相同的环境
+- ✅ **可追踪** - 清晰记录每个软件的用途和说明
+
+---
+
+### 第一步：准备工作
+```bash
+# 克隆仓库
+git clone <repo-url> mac-setup
+cd mac-setup
+
+# 查看即将安装的软件
+cat brew-packages.txt
+```
+
+### 第二步：自定义配置
+
+#### 编辑软件包列表
+```bash
+vim brew-packages.txt
+# 添加或移除你需要的软件
+```
+
+示例：
+```bash
+# ===== CLI 工具 =====
+git           # 版本控制
+wget          # 文件下载
+ripgrep       # 快速搜索
+fd            # 友好的 find 替代品
+fzf           # 模糊查找
+jq            # JSON 处理
+bat           # Cat 增强版
+htop          # 进程监控
+zoxide        # 目录导航
+
+# ===== 构建工具 =====
+cmake         # 跨平台编译
+pkg-config    # 库文件定位
+
+# ===== GUI 应用 =====
+keka          # 压缩工具
+drawio        # 流程图软件
+iina          # 视频播放器
+warp          # 现代终端
+raycast       # 快速启动器
+google-chrome # 网页浏览器
+devtoys       # 开发者工具集
+aldente       # 电池管理
+```
+
+#### 自定义编程语言版本（可选）
+编辑 `setup-macos.sh` 第 7-17 行的配置：
+
+```bash
+# ⭐ 用户可配置区（最重要）
+INSTALL_NODE=1       # 设为 0 跳过 Node.js 安装
+INSTALL_PYTHON=1     # 设为 0 跳过 Python 安装
+INSTALL_RUST=1       # 设为 0 跳过 Rust 安装
+INSTALL_JAVA=1       # 设为 0 跳过 Java 安装
+
+# ---- 语言版本策略（只锁大版本）----
+PYTHON_MAJOR="3.12"  # → 安装 3.12.x 最新
+NODE_MAJOR="22"      # → 安装 22.x 最新
+JAVA_MAJOR="21"      # → 安装 21.x 最新（LTS）
+```
+
+### 第三步：执行初始化
+```bash
+chmod +x setup-macos.sh
+./setup-macos.sh
+```
+
+**执行过程：**
+1. 脚本列出所有待执行操作
+2. 显示将要安装的编程语言和软件
+3. 等待用户确认（输入 `y` 继续）
+4. 自动安装并配置所有环境
+5. 完成后提示后续验证步骤
+
+### 第四步：验证环境
+```bash
+# 重新打开终端或运行
+exec zsh
+
+# 验证所有工具已安装
+python --version   # Python 3.12.x
+node --version     # v22.x.x
+rustc --version    # rustc x.x.x
+java -version      # openjdk 21.x.x
+brew --version     # Homebrew x.x.x
+```
+
+## 🔄 回滚操作
+
+脚本对所有修改都使用特殊标记，支持精确回滚：
+
+```bash
+### AUTO-SETUP-CORE ###
+...配置内容...
+### END AUTO-SETUP-CORE ###
+```
+
+### soft 模式 - 禁用所有配置（最安全）
+```bash
+./rollback.sh soft
+```
+
+**效果：**
+- ✅ 禁用所有 AUTO- 配置块
+- ✅ **不删除任何内容**
+- ✅ 保留所有已安装软件
+- ✅ 环境变量失效但数据完整
+
+**适用场景：** 临时禁用脚本配置，测试原生环境
+
+---
+
+### env 模式 - 恢复用户环境（推荐）
+```bash
+./rollback.sh env
+```
+
+**删除项目：**
+- `.oh-my-zsh` - Shell 框架
+- `.cargo` - Rust 工具链
+- `.pyenv` - Python 版本管理
+- `.fnm` - Node.js 版本管理
+- `.jenv` - Java 版本管理
+- `.zshrc` 中的所有 AUTO- 配置块
+
+**保留项目：**
+- ✅ Homebrew 及所有软件包
+- ✅ 用户的自定义 .zshrc 配置
+- ✅ 其他用户文件
+
+**适用场景：** 卸载脚本配置，保留已安装软件
+
+---
+
+### full 模式 - 完全卸载（高风险）
+```bash
+./rollback.sh full
+```
+
+**执行步骤：**
+1. 执行 env 模式的所有操作
+2. 卸载 Brewfile 中安装的**所有软件**
+3. 询问是否卸载 Homebrew（可选）
+
+⚠️ **警告：** 此操作删除大量软件，建议仅在完全重置系统时使用
+
+**适用场景：** 完全重置系统环境
+
+---
+
+## � 软件包详细说明
+
+### 什么是 brew-packages.txt？
+
+`brew-packages.txt` 是脚本的**核心配置文件**，用于定义需要安装的所有软件包。
+
+**工作流程：**
+1. 脚本读取 `brew-packages.txt`
+2. 自动检测每个软件是 CLI 工具还是 GUI 应用（cask）
+3. 生成对应的 Homebrew Brewfile
+4. 使用 `brew bundle` 统一安装
+
+**特点：**
+- ✅ 支持注释（# 开头的行会被忽略）
+- ✅ 支持空行（自动跳过）
+- ✅ 增量更新（不覆盖用户现有的 Brewfile）
+- ✅ 易于版本控制（用 git 追踪变化）
+- ✅ 每个软件都有中文说明注释
+
+**文件格式示例：**
+```bash
+# ===== CLI 工具 =====
+git              # 注释：软件用途
+wget             # 注释：软件用途
+ripgrep          # 注释：软件用途
+
+# ===== GUI 应用 =====
+keka             # 注释：软件用途
+drawio           # 注释：软件用途
+```
+
+---
+
+### 📋 当前安装的软件清单
+
+#### CLI 工具（命令行工具）
+
+| 软件名 | 功能 | 使用场景 |
+|-------|------|---------|
+| **git** | 版本控制系统 | 所有开发项目必备 |
+| **wget** | 文件下载工具 | 从网络下载文件 |
+| **ripgrep (rg)** | 快速文本搜索 | 比 grep 快 10+ 倍，用于代码搜索 |
+| **fd** | 文件查找工具 | find 的现代替代品，更快更易用 |
+| **fzf** | 模糊查找工具 | 增强 bash/zsh 交互，模糊搜索历史和文件 |
+| **jq** | JSON 处理工具 | 命令行 JSON 查询和转换 |
+| **bat** | Cat 增强版 | 语法高亮的文件查看器，替代 cat |
+| **htop** | 进程监控工具 | top 的增强版，实时监控系统资源 |
+| **zoxide** | 目录导航工具 | 智能目录跳转，比 cd 更聪明 |
+
+**何时需要这些工具：**
+- 开发工作流中频繁使用命令行
+- 需要快速搜索和查找文件
+- 处理 JSON 数据
+- 监控系统性能
+
+---
+
+#### 构建工具
+
+| 软件名 | 功能 | 使用场景 |
+|-------|------|---------|
+| **cmake** | 跨平台编译工具 | C/C++ 项目构建，Xcode 开发 |
+| **pkg-config** | 库文件定位工具 | 帮助编译器找到依赖库位置 |
+
+**何时需要这些工具：**
+- 编译 C/C++ 项目
+- 安装需要编译的依赖包
+- 开发 macOS 原生应用
+
+---
+
+#### GUI 应用（图形界面应用）
+
+| 软件名 | 功能 | 使用场景 |
+|-------|------|---------|
+| **Keka** | 压缩/解压工具 | 处理 ZIP、RAR、7Z 等压缩文件 |
+| **Draw.io** | 流程图和图表工具 | 绘制系统架构图、流程图、UML 图 |
+| **IINA** | 视频播放器 | 播放各种格式视频，比系统播放器功能强大 |
+| **百度网盘** | 云存储客户端 | 访问百度网盘文件 |
+| **AppCleaner** | 应用卸载工具 | 彻底卸载应用及其相关文件 |
+| **Warp** | 现代终端 | Rust 开发的高性能终端，支持 AI |
+| **Raycast** | 快速启动器 | Spotlight 替代品，快速启动应用和查找文件 |
+| **Open in Terminal** | 右键菜单工具 | 在任意文件夹右键打开终端 |
+| **DevToys** | 开发者工具集 | JSON 格式化、编码解码、时间戳转换等 |
+| **PopClip** | 快捷粘贴板工具 | 选中文本自动出现快捷操作（格式化、翻译等） |
+| **Google Chrome** | 网页浏览器 | 开发必备浏览器 |
+| **Buzz** | 本地音频转录工具 | 将音频/视频转为文字（离线，基于 OpenAI Whisper） |
+| **BetterDisplay** | 显示器管理工具 | 调节分辨率、刷新率，管理多屏 |
+| **AlDente** | 电池健康管理 | 限制充电到指定百分比，延长电池寿命 |
+
+**何时需要这些工具：**
+- 日常开发工作中需要各种辅助工具
+- 管理系统和维护电脑健康
+- 提高工作效率
+
+---
+
+#### Shell & Prompt
+
+| 软件名 | 功能 | 使用场景 |
+|-------|------|---------|
+| **Starship** | 现代化命令行提示符 | 替换默认 shell 提示符，显示 git 分支、环境信息等 |
+
+**为什么使用 Starship：**
+- 更美观的终端提示
+- 自动显示 git 分支和状态
+- 显示当前编程语言版本
+- 性能高（用 Rust 编写）
+- 完全可定制
+
+---
+
+### 🛠️ 如何修改软件列表
+
+#### 添加新软件
+```bash
+vim brew-packages.txt
+
+# 在对应分类下添加
+# 例如在 CLI 工具下添加 node-gyp
+git
+wget
+ripgrep
+fd
+node-gyp       # ← 新增软件
+```
+
+#### 移除不需要的软件
+```bash
+# 删除行即可，或注释掉
+# 例如不需要 100 disk，注释掉
+# 百度网盘
+```
+
+#### 重新运行安装
+```bash
+# 修改后，可安全地重新运行
+./setup-macos.sh
+
+# 脚本会：
+# 1. 检查已有软件（跳过已安装）
+# 2. 安装新增软件
+# 3. 不会卸载被注释的软件
+```
+
+---
+
+### 🔍 查询软件是否存在
+
+```bash
+# 搜索软件
+brew search package-name
+
+# 查看软件详情
+brew info package-name
+
+# 查看 cask（GUI应用）
+brew search --casks keyword
+```
+
+---
+
+### ⚠️ GNU 工具说明
+
+脚本默认注释了以下 GNU 工具：
+
+```bash
+# ===== GNU 工具 =====
+# coreutils         # 注意：会在 PATH 中优先级前置，可能影响系统命令
+# gnu-sed           # 注意：可能与 BSD sed 冲突
+# gnu-tar           # 注意：可能与 BSD tar 冲突
+```
+
+**为什么默认不安装？**
+- macOS 自带 BSD 版本的 sed、tar 等
+- GNU 版本的这些工具会导致 PATH 优先级问题
+- 可能破坏某些依赖 BSD 版本的脚本
+
+**何时需要取消注释？**
+- 有 Linux 脚本需要 GNU 工具语法
+- 明确需要 GNU sed 的高级功能
+- 了解 PATH 管理的开发者
+
+**如何使用？**
+```bash
+# 1. 在 brew-packages.txt 中取消注释
+coreutils
+
+# 2. 重新运行
+./setup-macos.sh
+
+# 3. GNU 工具会以 g 前缀提供
+# BSD sed:    sed
+# GNU sed:    gsed
+# BSD tar:    tar
+# GNU tar:    gtar
+```
+
+---
+
+## �📝 工作原理
+
+### 配置块标记系统
+
+所有脚本修改都使用统一的标记块，带来以下优势：
+
+```bash
+### AUTO-<NAME> ###
+...配置内容...
+### END AUTO-<NAME> ###
+```
+
+**优势：**
+- 🔄 **幂等性** - 多次运行安全，检查标记避免重复添加
+- 🎯 **精确回滚** - 可完全移除对应配置
+- 👤 **用户友好** - 保留用户自定义的 .zshrc 配置
+
+**脚本中的标记块：**
+- `AUTO-SETUP-CORE` - Oh My Zsh 和 Starship 配置
+- `AUTO-RUST` - Rust 环境变量
+- `AUTO-PYENV` - Python 环境管理
+- `AUTO-FNM` - Node.js 环境管理
+- `AUTO-JENV` - Java 环境管理
+
+### 版本管理策略
+
+脚本**只锁定主版本号**，自动安装最新补丁版本：
+
+```bash
+PYTHON_MAJOR="3.12"   # → 自动安装 3.12.x 最新（3.12.0, 3.12.1, ...）
+NODE_MAJOR="22"       # → 自动安装 22.x 最新（22.10, 22.11, ...）
+JAVA_MAJOR="21"       # → 自动安装 21.x 最新（21.0.1, 21.0.2, ...）
+```
+
+**好处：**
+- ✅ 获得最新安全补丁
+- ✅ 避免主版本过时
+- ✅ 灵活应对版本更新
+
+### Brewfile 管理
+
+脚本自动将 `brew-packages.txt` 转换为 Homebrew Brewfile：
+
+```bash
+# brew-packages.txt
+git              # 自动识别为 brew install git
+keka             # 自动识别为 cask "keka"（GUI 应用）
+```
+
+**特点：**
+- 增量更新（不覆盖现有 Brewfile）
+- 自动分类 CLI 和 GUI 工具
+- 支持注释（# 开头的行自动忽略）
+
+## 🛡️ 安全性机制
+
+### 1. 自动备份
+```bash
+# .zshrc 备份（首次修改时）
+~/.mac-setup-backup/zshrc.before-*.bak
+
+# Brewfile 备份（回滚时）
+~/.mac-setup-backup/Brewfile.before-*.bak
+```
+
+### 2. 幂等设计
+```bash
+# 脚本可安全多次运行
+./setup-macos.sh
+./setup-macos.sh  # 再次运行，已安装包跳过
+./setup-macos.sh  # 完全安全，不会破坏环境
+```
+
+### 3. 错误处理
+```bash
+set -e              # 任何命令失败立即停止
+# 关键步骤的检查
+if ! command -v brew >/dev/null 2>&1; then
+  echo "❌ Homebrew 安装失败"
+  exit 1
+fi
+```
+
+### 4. 用户确认
+```bash
+# 初始化前
+echo "将执行以下操作："
+echo "  ✓ 安装 Homebrew"
+echo "  ✓ 安装 Python 3.12"
+echo "  ✓ 安装 Node.js 20"
+read -p "确认继续？[y/N]: " confirm
+
+# 危险操作（回滚 full 模式）
+read -p "确认继续？[y/N]: " confirm
+read -p "是否卸载 Homebrew？[y/N]: " remove_brew
+```
+
+### 5. GNU 工具兼容性提醒
+```bash
+# brew-packages.txt
+# ===== GNU 工具 =====
+# coreutils         # ⚠️ 注意：可能与 macOS 系统工具冲突
+# gnu-sed           # ⚠️ 注意：可能与 BSD sed 冲突
+# gnu-tar           # ⚠️ 注意：可能与 BSD tar 冲突
+```
+
+## 🔧 故障排查
+
+### 问题 1：Homebrew 安装失败
+
+**症状：** `brew: command not found` 或安装中断
+
+**解决方案：**
+```bash
+# 检查网络连接
+ping -c 3 github.com
+
+# 手动安装 Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# 添加 Homebrew 到 PATH（Apple Silicon Mac）
+echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
+```
+
+### 问题 2：Python/Node/Java 版本未找到
+
+**症状：** `⚠️ 未找到 Python 3.12 版本`
+
+**解决方案：**
+```bash
+# 更新版本列表
+pyenv install -l | head -20         # 查看可用 Python 版本
+fnm list-remote | head -20          # 查看可用 Node.js 版本
+
+# 手动修改 setup-macos.sh
+PYTHON_MAJOR="3.11"  # 改为可用版本
+```
+
+### 问题 3：.zshrc 配置混乱或重复
+
+**症状：** 终端启动慢或命令执行错误
+
+**解决方案：**
+```bash
+# 查看备份文件
+ls -la ~/.mac-setup-backup/
+
+# 恢复备份
+cp ~/.mac-setup-backup/zshrc.before-*.bak ~/.zshrc
+
+# 或重新运行 rollback.sh 清理
+./rollback.sh env
+```
+
+### 问题 4：脚本执行权限不足
+
+**症状：** `Permission denied: ./setup-macos.sh`
+
+**解决方案：**
+```bash
+# 添加执行权限
+chmod +x setup-macos.sh rollback.sh
+
+# 或使用 bash 直接运行
+bash setup-macos.sh
+```
+
+### 问题 5：某些软件包安装失败
+
+**症状：** `❌ Error: xxx brew package not found`
+
+**解决方案：**
+```bash
+# 检查包名是否正确
+brew search xxx
+
+# 更新 Homebrew
+brew update
+
+# 从 brew-packages.txt 移除该包
+vim brew-packages.txt
+
+# 重新运行安装
+./setup-macos.sh
+```
+
+## 📚 文件说明
+
+### brew-packages.txt 的核心作用
+
+`brew-packages.txt` 是整个脚本系统的**配置中枢**，其重要性不可低估：
+
+**三个核心作用：**
+
+1. **定义环境** 
+   - 决定你的开发环境包含哪些工具
+   - 每个软件都有清晰的中文说明，解释用途
+   - 支持分类组织（CLI、构建工具、GUI、Shell）
+
+2. **团队协作**
+   ```bash
+   # 团队成员只需执行一行命令
+   ./setup-macos.sh
+   
+   # 所有人都获得完全相同的开发环境
+   # 无需繁琐的沟通和手动配置
+   ```
+
+3. **版本控制**
+   ```bash
+   git add brew-packages.txt
+   git commit -m "Add DevToys and Buzz for better workflow"
+   
+   # 追踪每个软件的添加和移除历史
+   git log --oneline brew-packages.txt
+   ```
+
+**与其他文件的关系：**
+```
+你的需求
+    ↓
+brew-packages.txt (你的软件清单 - 配置)
+    ↓
+setup-macos.sh (初始化脚本 - 执行)
+    ↓
+rollback.sh (回滚脚本 - 撤销)
+    ↓
+README.md (文档 - 说明)
+```
+
+---
+
+### 文件详细说明
+
+| 文件 | 用途 | 说明 |
+|------|------|------|
+| `setup-macos.sh` | 主脚本 | 自动化初始化，244 行，完整错误处理 |
+| `rollback.sh` | 回滚脚本 | 三级回滚机制，安全可靠 |
+| **`brew-packages.txt`** | **配置文件** | **列出需要安装的软件，每个软件都有说明** |
+| `README.md` | 文档 | 详细使用指南（本文件，720+ 行） |
+| `REVIEW.md` | 技术文档 | 审查和改进详情（供参考） |
+| `VERIFICATION.md` | 验证报告 | 最终质量评估（供参考） |
+| `test-markers.sh` | 测试工具 | 验证配置块完整性 |
+| `check.sh` | 检查工具 | 脚本完整性检查 |
+
+---
+
+### brew-packages.txt 使用建议
+
+**初次使用：**
+1. 查看当前列表是否满足需求
+2. 移除不需要的软件（注释或删除行）
+3. 添加自己需要的软件
+4. 运行 `./setup-macos.sh`
+
+**后续维护：**
+1. 定期更新软件列表
+2. 用 git 追踪变化
+3. 在团队中共享配置
+4. 收集反馈并改进
+
+---
+
+## 💡 最佳实践
+
+### 1. 首次使用流程
+```bash
+# 1. 克隆并查看
+git clone <repo> && cd mac-setup
+cat README.md      # 阅读说明
+cat brew-packages.txt  # 查看默认软件
+
+# 2. 自定义配置
+vim brew-packages.txt  # 添加需要的软件
+vim setup-macos.sh     # 修改语言版本（可选）
+
+# 3. 备份现有配置（重要！）
+cp ~/.zshrc ~/.zshrc.backup
+
+# 4. 执行初始化
+./setup-macos.sh
+
+# 5. 验证结果
+exec zsh
+python --version && node --version && java -version
+```
+
+### 2. 遇到问题时
+```bash
+# 查看错误日志
+./setup-macos.sh 2>&1 | tee setup.log
+
+# 手动修复问题后，可以再次运行（安全）
+./setup-macos.sh
+
+# 如果想回滚
+./rollback.sh soft   # 先禁用（最安全）
+# 修复问题后
+./rollback.sh env    # 再恢复原环境
+```
+
+### 3. 多人团队使用
+```bash
+# 统一开发环境
+git clone <repo> mac-setup
+cd mac-setup
+
+# 所有团队成员运行相同命令
+./setup-macos.sh
+
+# 保证所有人拥有相同的环境配置
+# Python 3.12、Node.js 20、Java 21、Rust 最新...
+```
+
+### 4. 版本控制管理
+```bash
+# 在 git 中管理这些脚本
+git add setup-macos.sh brew-packages.txt
+git commit -m "Update: add new packages and upgrade Python to 3.13"
+git push
+
+# 追踪所有环境变化历史
+git log --oneline
+```
+
+### 5. 定期更新
+```bash
+# 每月检查一次新版本
+brew update
+pyenv install -l | grep "^  3.12" | tail -3
+fnm list-remote | grep "^v22" | tail -3
+
+# 如有重要安全更新，修改版本号
+vim setup-macos.sh
+# PYTHON_MAJOR="3.12.1" 改为 "3.13"
+
+# 重新运行（安全）
+./setup-macos.sh
+```
+
+## 🌍 兼容性
+
+| 系统 | 状态 | 备注 |
+|------|------|------|
+| macOS (Intel) | ✅ 完全支持 | 推荐使用 |
+| macOS (Apple Silicon) | ✅ 完全支持 | 需要 Homebrew 在 /opt/homebrew |
+| macOS Monterey+ | ✅ 推荐 | 3.12+ 版本可用 |
+| Ubuntu 20.04+ | ✅ 基本支持 | 需要 apt 安装依赖 |
+| 其他 Linux | ⚠️ 有限支持 | 可能需要手动调整 |
+
+## 📖 文档导航
+
+- **新用户** → 从 [快速开始](#-快速开始) 开始
+- **想了解软件** → 查看 [软件包详细说明](#-软件包详细说明)
+- **开发者** → 查看 [工作原理](#-工作原理)
+- **遇到问题** → 参考 [故障排查](#-故障排查)
+- **深入了解** → 阅读 `REVIEW.md` 和 `VERIFICATION.md`
+
+---
+
+## 🎯 快速参考
+
+### brew-packages.txt 的作用
+```
+定义你的开发环境 → 自动安装所有软件 → 版本控制追踪 → 团队协作共享
+```
+
+### 文件关系图
+```
+brew-packages.txt (你的配置)
+       ↓
+setup-macos.sh (读取和执行)
+       ↓
+Brewfile + Shell配置 (实际环境)
+       ↓
+rollback.sh (需要时撤销)
+```
+
+### 常用命令速查
+```bash
+# 初始化
+./setup-macos.sh
+
+# 回滚（三种选择）
+./rollback.sh soft   # 仅禁用配置
+./rollback.sh env    # 删除环境（推荐）
+./rollback.sh full   # 完全卸载
+
+# 修改软件列表
+vim brew-packages.txt
+./setup-macos.sh     # 重新运行安装
+
+# 版本控制
+git add brew-packages.txt
+git commit -m "Update packages"
+```
+
+---
+
+## 📝 文件修改历史
+
+### 最近更新
+- ✅ 更新 Node.js 版本到 22.x
+- ✅ 添加所有软件的详细说明和中文注释
+- ✅ 完善 brew-packages.txt 核心作用说明
+- ✅ 增加软件使用场景和选择指南
+
+---
+
+## 🤝 贡献建议
+
+欢迎改进和建议！您可以：
+- 📝 修改 `brew-packages.txt` 添加新软件
+- 🐛 发现 bug 时创建 issue
+- 💡 建议新功能或优化
+- 📢 分享给其他开发者
+- 💬 提出改进文档的建议
+
+---
+
+## 📄 许可证
+
+MIT License - 自由使用和修改
+
+---
+
+**最后更新：2025年12月13日**  
+**脚本版本：2.0**  
+**文档完整性：✅ 100%**
+
