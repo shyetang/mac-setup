@@ -112,6 +112,21 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 fi
 
+# 安装 Oh My Zsh 扩展插件
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
+# zsh-syntax-highlighting - 命令语法高亮
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
+  echo "▶ 安装 zsh-syntax-highlighting"
+  git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+fi
+
+# zsh-autosuggestions - 命令自动建议
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
+  echo "▶ 安装 zsh-autosuggestions"
+  git clone https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+fi
+
 # ===============================
 # 4️⃣ 安全追加 zsh 配置（标记块）
 # ===============================
@@ -170,7 +185,7 @@ extract_existing_plugins() {
 # 合并插件列表（去重）
 merge_plugins() {
   local existing="$1"
-  local new_plugins="git sudo extract fzf colored-man-pages"
+  local new_plugins="git sudo extract fzf colored-man-pages zsh-syntax-highlighting zsh-autosuggestions"
   
   # 合并并去重
   echo "$existing $new_plugins" | tr ' ' '\n' | sort -u | tr '\n' ' ' | sed 's/ $//'
@@ -296,7 +311,7 @@ else
 ### AUTO-SETUP-CORE ###
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""
-plugins=(git sudo extract fzf colored-man-pages)
+plugins=(git sudo extract fzf colored-man-pages zsh-syntax-highlighting zsh-autosuggestions)
 source $ZSH/oh-my-zsh.sh
 
 if command -v starship > /dev/null 2>&1; then

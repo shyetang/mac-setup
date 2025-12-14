@@ -17,6 +17,7 @@
 | 类别 | 工具 |
 |------|------|
 | **系统** | Homebrew, Oh My Zsh, Starship, fzf, zoxide |
+| **OMZ 插件** | zsh-syntax-highlighting（语法高亮）, zsh-autosuggestions（自动建议） |
 | **语言** | Python (pyenv), Node.js (fnm), Rust (rustup), Java (jenv) |
 | **软件包** | 由 `brew-packages.txt` 定义 |
 
