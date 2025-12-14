@@ -252,12 +252,13 @@ fi'
   fi
   
   # 只在不存在 AUTO-SETUP-CORE 时添加
+  # 注意：因为用户已有 OMZ 配置（包含 source），此处只需覆盖 plugins 和添加 starship
   if ! grep -q "### AUTO-SETUP-CORE ###" "$ZSHRC" 2>/dev/null; then
-    cat >> "$ZSHRC" << EOF
+    cat >> "$ZSHRC" <<EOF
 
 ### AUTO-SETUP-CORE ###
-# Oh My Zsh 已在上方配置，此处仅更新插件列表
-plugins=($merged_plugins)
+# 插件列表已在上方 plugins=(...) 行中更新
+# 此块仅用于 starship 配置和标记脚本修改范围
 $starship_config
 ### END AUTO-SETUP-CORE ###
 EOF
@@ -433,7 +434,9 @@ fi
 # ===============================
 if [ -x "$(brew --prefix)/opt/fzf/install" ]; then
   echo "▶ 配置 fzf 补全"
-  "$(brew --prefix)/opt/fzf/install" --all
+  # --no-update-rc 避免重复添加到 .zshrc（已通过 OMZ fzf 插件配置）
+  # --key-bindings --completion 启用快捷键和补全
+  "$(brew --prefix)/opt/fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish
 fi
 
 echo ""

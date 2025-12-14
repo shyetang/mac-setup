@@ -4,9 +4,6 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-*.swp
-*.swo
-*~
 
 # ============================================================================
 # IDE & Editor
@@ -31,9 +28,7 @@ Brewfile.lock.json
 *.bak
 *.backup
 *.tmp
-*.swp
 .*.swp
-*~
 
 # ============================================================================
 # Project-Specific Files
@@ -47,6 +42,7 @@ COMMIT_MESSAGE.txt
 # User's local configuration backups
 .zshrc.backup
 .zshrc.before-*
+.zshrc.test
 
 # ============================================================================
 # Environment & Dependencies

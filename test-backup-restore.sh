@@ -105,8 +105,8 @@ echo "测试 2：模拟 setup-macos.sh 修改配置"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # 修改 .zshrc（模拟 setup-macos.sh 的行为）
-sed -i.test 's/plugins=(git docker autojump)/plugins=(autojump colored-man-pages docker extract fzf git sudo)/' "$HOME/.zshrc"
-sed -i.test 's/ZSH_THEME="robbyrussell"/ZSH_THEME=""/' "$HOME/.zshrc"
+sed -i '' 's/plugins=(git docker autojump)/plugins=(autojump colored-man-pages docker extract fzf git sudo)/' "$HOME/.zshrc"
+sed -i '' 's/ZSH_THEME="robbyrussell"/ZSH_THEME=""/' "$HOME/.zshrc"
 
 echo "✅ 配置已修改："
 grep "^plugins=" "$HOME/.zshrc"
