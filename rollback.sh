@@ -44,6 +44,45 @@ if [ "$MODE" = "env" ]; then
 
     echo "▶ 移除 AUTO-SETUP 配置块"
     awk '/^### AUTO-/{flag=1} /^### END AUTO-/{flag=0;next} !flag' "$ZSHRC" > "$ZSHRC.tmp" && mv "$ZSHRC.tmp" "$ZSHRC"
+    
+    # 恢复原始配置（如果有备份）
+    if [ -f "$BACKUP_DIR/original-plugins.latest" ] || [ -f "$BACKUP_DIR/original-theme.latest" ]; then
+      echo "▶ 恢复原始 Oh My Zsh 配置"
+      
+      # 恢复原始插件
+      if [ -f "$BACKUP_DIR/original-plugins.latest" ]; then
+        original_plugins=$(cat "$BACKUP_DIR/original-plugins.latest")
+        if [ -n "$original_plugins" ]; then
+          echo "  恢复插件: $original_plugins"
+          # 更新 .zshrc 中的 plugins 行
+          awk -v plugins="$original_plugins" '
+            /^plugins=\(/ {
+              print "plugins=(" plugins ")"
+              next
+            }
+            { print }
+          ' "$ZSHRC" > "$ZSHRC.tmp" && mv "$ZSHRC.tmp" "$ZSHRC"
+        fi
+      fi
+      
+      # 恢复原始主题
+      if [ -f "$BACKUP_DIR/original-theme.latest" ]; then
+        original_theme=$(cat "$BACKUP_DIR/original-theme.latest")
+        if [ -n "$original_theme" ]; then
+          echo "  恢复主题: $original_theme"
+          # 更新 .zshrc 中的 ZSH_THEME 行
+          awk -v theme="$original_theme" '
+            /^ZSH_THEME=/ {
+              print "ZSH_THEME=\"" theme "\""
+              next
+            }
+            { print }
+          ' "$ZSHRC" > "$ZSHRC.tmp" && mv "$ZSHRC.tmp" "$ZSHRC"
+        fi
+      fi
+    else
+      echo "  ⚠️ 未找到原始配置备份，跳过恢复"
+    fi
   fi
 
   echo "▶ 删除语言与 shell 相关目录"

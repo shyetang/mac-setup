@@ -29,3 +29,5 @@ betterdisplay
 aldente
 visual-studio-code
 zed
+iterm2
+

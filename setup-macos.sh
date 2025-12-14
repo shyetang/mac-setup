@@ -127,18 +127,183 @@ add_block() {
   fi
 }
 
-add_block "### AUTO-SETUP-CORE ###" '
+# ===============================
+# 智能配置检测函数
+# ===============================
+
+# 检测是否已有 Oh My Zsh 配置（排除 AUTO 块）
+detect_omz_config() {
+  if [ ! -f "$ZSHRC" ]; then
+    return 1
+  fi
+  
+  # 检查是否存在 Oh My Zsh 配置，但不在 AUTO 块内
+  awk '
+    /^### AUTO-/ { in_auto=1; next }
+    /^### END AUTO-/ { in_auto=0; next }
+    !in_auto && /^(export ZSH=|source \$ZSH\/oh-my-zsh\.sh)/ { found=1; exit }
+    END { exit !found }
+  ' "$ZSHRC"
+}
+
+# 提取现有插件列表（排除 AUTO 块）
+extract_existing_plugins() {
+  if [ ! -f "$ZSHRC" ]; then
+    echo ""
+    return
+  fi
+  
+  awk '
+    /^### AUTO-/ { in_auto=1; next }
+    /^### END AUTO-/ { in_auto=0; next }
+    !in_auto && /^plugins=\(/ {
+      # 提取括号内的内容
+      line = $0
+      sub(/^plugins=\(/, "", line)
+      sub(/\).*$/, "", line)
+      print line
+      exit
+    }
+  ' "$ZSHRC"
+}
+
+# 合并插件列表（去重）
+merge_plugins() {
+  local existing="$1"
+  local new_plugins="git sudo extract fzf colored-man-pages"
+  
+  # 合并并去重
+  echo "$existing $new_plugins" | tr ' ' '\n' | sort -u | tr '\n' ' ' | sed 's/ $//'
+}
+
+# 提取现有主题设置（排除 AUTO 块）
+extract_existing_theme() {
+  if [ ! -f "$ZSHRC" ]; then
+    echo ""
+    return
+  fi
+  
+  awk '
+    /^### AUTO-/ { in_auto=1; next }
+    /^### END AUTO-/ { in_auto=0; next }
+    !in_auto && /^ZSH_THEME=/ {
+      # 提取引号内的内容
+      line = $0
+      sub(/^ZSH_THEME="/, "", line)
+      sub(/".*$/, "", line)
+      print line
+      exit
+    }
+  ' "$ZSHRC"
+}
+
+# 智能配置 Oh My Zsh
+if detect_omz_config; then
+  echo "▶ 检测到现有 Oh My Zsh 配置，执行智能合并"
+  
+  # 提取现有配置
+  existing_plugins=$(extract_existing_plugins)
+  existing_theme=$(extract_existing_theme)
+  
+  echo "  现有插件: ${existing_plugins:-无}"
+  echo "  现有主题: ${existing_theme:-无}"
+  
+  # 备份原始配置（用于回滚）
+  BACKUP_DIR="$HOME/.mac-setup-backup"
+  mkdir -p "$BACKUP_DIR"
+  TIMESTAMP=$(date +%Y%m%d%H%M%S)
+  
+  echo "▶ 备份原始配置到 $BACKUP_DIR"
+  echo "$existing_plugins" > "$BACKUP_DIR/original-plugins.$TIMESTAMP"
+  echo "$existing_theme" > "$BACKUP_DIR/original-theme.$TIMESTAMP"
+  
+  # 创建符号链接指向最新备份
+  ln -sf "$BACKUP_DIR/original-plugins.$TIMESTAMP" "$BACKUP_DIR/original-plugins.latest"
+  ln -sf "$BACKUP_DIR/original-theme.$TIMESTAMP" "$BACKUP_DIR/original-theme.latest"
+  
+  # 合并插件
+  merged_plugins=$(merge_plugins "$existing_plugins")
+  echo "  合并后插件: $merged_plugins"
+  
+  # 决定主题策略
+  use_starship="n"
+  if [ -n "$existing_theme" ] && [ "$existing_theme" != '""' ] && [ "$existing_theme" != "" ]; then
+    echo ""
+    echo "  💡 脚本推荐使用 starship（现代化命令行提示符）"
+    echo "     - 更美观的终端提示"
+    echo "     - 自动显示 git 分支、环境状态"
+    echo "     - 高性能（Rust 编写）"
+    read -p "  是否改用 starship？[y/N]: " use_starship
+  else
+    # 用户无主题或主题为空，默认使用 starship
+    use_starship="y"
+  fi
+  
+  # 生成配置内容
+  if [ "$use_starship" = "y" ]; then
+    starship_config='
+if command -v starship > /dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi'
+    final_theme=""
+  else
+    starship_config=""
+    final_theme="$existing_theme"
+  fi
+  
+  # 只在不存在 AUTO-SETUP-CORE 时添加
+  if ! grep -q "### AUTO-SETUP-CORE ###" "$ZSHRC" 2>/dev/null; then
+    cat >> "$ZSHRC" << EOF
+
+### AUTO-SETUP-CORE ###
+# Oh My Zsh 已在上方配置，此处仅更新插件列表
+plugins=($merged_plugins)
+$starship_config
+### END AUTO-SETUP-CORE ###
+EOF
+  fi
+  
+  # 更新原有配置中的插件列表（排除 AUTO 块内的）
+  awk -v new_plugins="$merged_plugins" '
+    /^### AUTO-/ { in_auto=1; print; next }
+    /^### END AUTO-/ { in_auto=0; print; next }
+    !in_auto && /^plugins=\(/ {
+      print "plugins=(" new_plugins ")"
+      next
+    }
+    { print }
+  ' "$ZSHRC" > "$ZSHRC.tmp" && mv "$ZSHRC.tmp" "$ZSHRC"
+  
+  # 如果选择使用 starship，清空原有主题
+  if [ "$use_starship" = "y" ]; then
+    awk '
+      /^### AUTO-/ { in_auto=1; print; next }
+      /^### END AUTO-/ { in_auto=0; print; next }
+      !in_auto && /^ZSH_THEME=/ {
+        print "ZSH_THEME=\"\""
+        next
+      }
+      { print }
+    ' "$ZSHRC" > "$ZSHRC.tmp" && mv "$ZSHRC.tmp" "$ZSHRC"
+  fi
+  
+else
+  # 无现有配置，使用完整配置块
+  echo "▶ 未检测到 Oh My Zsh 配置，添加完整配置块"
+  
+  add_block "### AUTO-SETUP-CORE ###" '
 ### AUTO-SETUP-CORE ###
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""
 plugins=(git sudo extract fzf colored-man-pages)
 source $ZSH/oh-my-zsh.sh
 
-if command -v starship >/dev/null 2>&1; then
+if command -v starship > /dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 ### END AUTO-SETUP-CORE ###
 '
+fi
 
 add_block "### AUTO-ZOXIDE ###" '
 ### AUTO-ZOXIDE ###
