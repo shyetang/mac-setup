@@ -143,11 +143,12 @@ chmod +x setup-macos.sh rollback.sh
 
 ## 🌍 兼容性
 
-| 系统 | 状态 |
-|------|------|
-| macOS Intel/Apple Silicon | ✅ 完全支持 |
-| macOS Monterey+ | ✅ 推荐 |
-| Ubuntu 20.04+ | ✅ 基本支持 |
+| 系统 | 状态 | 备注 |
+|------|------|------|
+| macOS 14 Sonoma | ✅ 已测试 | 开发和测试环境 |
+| macOS (Intel/Apple Silicon) | ✅ 应支持 | Homebrew 路径自动适配 |
+| macOS 12 Monterey+ | ✅ 应支持 | 依赖工具版本兼容 |
+| Linux | ⚠️ 未测试 | 可能需要修改包管理器相关逻辑 |
 
 ## 📄 许可证
 
