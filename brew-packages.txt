@@ -30,4 +30,7 @@ aldente
 visual-studio-code
 zed
 iterm2
+switchhosts
+
+
 

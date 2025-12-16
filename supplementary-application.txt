@@ -1,0 +1,31 @@
+# 额外软件-
+# 这里会不断补充我认为好的软件
+
+# AI 编辑器 & 编程助手
+cursor
+windsurf
+trae
+antigravity
+claude-code #claude-code 没办法用brew安装
+ 
+# 容器 & 虚拟化
+orbstack
+docker
+podman-desktop
+
+# 开发工具
+lazygit
+gh
+neovim
+tmux
+httpie
+postman
+reqable
+
+# 效率工具
+arc
+notion
+obsidian
+1password
+shottr
+rectangle
