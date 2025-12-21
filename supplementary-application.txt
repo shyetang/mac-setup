@@ -1,5 +1,5 @@
-# 额外软件-
-# 这里会不断补充我认为好的软件
+# 更多工具
+# 这里会不断补充我认为好的工具
 
 # AI 编辑器 & 编程助手
 cursor
@@ -21,6 +21,7 @@ tmux
 httpie
 postman
 reqable
+another-redis-desktop-manager
 
 # 效率工具
 arc
@@ -29,3 +30,7 @@ obsidian
 1password
 shottr
 rectangle
+jordanbaird-ice # cask 刘海屏菜单栏管理工具
+
+# 字体
+font-maple-mono-nf-cn # 等宽字体

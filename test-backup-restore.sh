@@ -15,7 +15,7 @@ fi
 
 # 创建测试 .zshrc
 echo "▶ 创建测试环境"
-cat > "$HOME/.zshrc" << 'EOF'
+cat >"$HOME/.zshrc" <<'EOF'
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 plugins=(git docker autojump)
@@ -45,7 +45,7 @@ extract_existing_plugins() {
     echo ""
     return
   fi
-  
+
   awk '
     /^### AUTO-/ { in_auto=1; next }
     /^### END AUTO-/ { in_auto=0; next }
@@ -64,7 +64,7 @@ extract_existing_theme() {
     echo ""
     return
   fi
-  
+
   awk '
     /^### AUTO-/ { in_auto=1; next }
     /^### END AUTO-/ { in_auto=0; next }
@@ -88,14 +88,14 @@ echo "✅ 检测到主题: $theme"
 # 执行备份
 mkdir -p "$BACKUP_DIR"
 TIMESTAMP=$(date +%Y%m%d%H%M%S)
-  echo "$plugins" > "$BACKUP_DIR/original-plugins.$TIMESTAMP"
-  echo "$theme" > "$BACKUP_DIR/original-theme.$TIMESTAMP"
-  ln -sf "$BACKUP_DIR/original-plugins.$TIMESTAMP" "$BACKUP_DIR/original-plugins.latest"
-  ln -sf "$BACKUP_DIR/original-theme.$TIMESTAMP" "$BACKUP_DIR/original-theme.latest"
-  
-  echo "✅ 备份已创建："
-  echo "  - $BACKUP_DIR/original-plugins.latest"
-  echo "  - $BACKUP_DIR/original-theme.latest"
+echo "$plugins" >"$BACKUP_DIR/original-plugins.$TIMESTAMP"
+echo "$theme" >"$BACKUP_DIR/original-theme.$TIMESTAMP"
+ln -sf "$BACKUP_DIR/original-plugins.$TIMESTAMP" "$BACKUP_DIR/original-plugins.latest"
+ln -sf "$BACKUP_DIR/original-theme.$TIMESTAMP" "$BACKUP_DIR/original-theme.latest"
+
+echo "✅ 备份已创建："
+echo "  - $BACKUP_DIR/original-plugins.latest"
+echo "  - $BACKUP_DIR/original-theme.latest"
 
 echo ""
 
@@ -121,12 +121,12 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 if [ -f "$BACKUP_DIR/original-plugins.latest" ]; then
   original_plugins=$(cat "$BACKUP_DIR/original-plugins.latest")
   original_theme=$(cat "$BACKUP_DIR/original-theme.latest")
-  
+
   echo "  备份的原始配置："
   echo "  - 插件: $original_plugins"
   echo "  - 主题: $original_theme"
   echo ""
-  
+
   # 恢复插件
   awk -v plugins="$original_plugins" '
     /^plugins=\(/ {
@@ -134,8 +134,8 @@ if [ -f "$BACKUP_DIR/original-plugins.latest" ]; then
       next
     }
     { print }
-  ' "$ZSHRC" > "$ZSHRC.tmp" && mv "$ZSHRC.tmp" "$ZSHRC"
-  
+  ' "$ZSHRC" >"$ZSHRC.tmp" && mv "$ZSHRC.tmp" "$ZSHRC"
+
   # 恢复主题
   awk -v theme="$original_theme" '
     /^ZSH_THEME=/ {
@@ -143,17 +143,17 @@ if [ -f "$BACKUP_DIR/original-plugins.latest" ]; then
       next
     }
     { print }
-  ' "$ZSHRC" > "$ZSHRC.tmp" && mv "$ZSHRC.tmp" "$ZSHRC"
-  
+  ' "$ZSHRC" >"$ZSHRC.tmp" && mv "$ZSHRC.tmp" "$ZSHRC"
+
   echo "✅ 配置已恢复："
   grep "^plugins=" "$HOME/.zshrc"
   grep "^ZSH_THEME=" "$HOME/.zshrc"
   echo ""
-  
+
   # 验证
   restored_plugins=$(extract_existing_plugins 2>/dev/null || grep "^plugins=" "$HOME/.zshrc" | sed 's/plugins=(\(.*\))/\1/')
   restored_theme=$(extract_existing_theme 2>/dev/null || grep "^ZSH_THEME=" "$HOME/.zshrc" | sed 's/ZSH_THEME="\(.*\)"/\1/')
-  
+
   if [ "$restored_plugins" = "$original_plugins" ] && [ "$restored_theme" = "$original_theme" ]; then
     echo "✅ 验证通过：配置已完全恢复！"
   else
