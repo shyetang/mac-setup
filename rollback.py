@@ -110,35 +110,44 @@ def write_file(path: Path, content: str) -> None:
 
 
 def disable_auto_blocks(zshrc_path: Path) -> None:
-    """禁用 AUTO 配置块（将 ### AUTO- 改为 ### DISABLED-AUTO-）"""
+    """禁用脚本生成的配置块"""
     if not zshrc_path.exists():
         log("  .zshrc 不存在，跳过", "WARN")
         return
 
     content = read_file(zshrc_path)
-    new_content = re.sub(
-        r"^### AUTO-", "### DISABLED-AUTO-", content, flags=re.MULTILINE
-    )
-    write_file(zshrc_path, new_content)
-    log("  已禁用 AUTO 配置块")
+
+    # 匹配所有脚本生成的配置块标记
+    # 包括: AUTO-*, HOMEBREW-PATH, MISE-ACTIVATE
+    markers = ["AUTO-", "HOMEBREW-PATH", "MISE-ACTIVATE"]
+
+    for marker in markers:
+        pattern = rf"^### {marker}"
+        replacement = f"### DISABLED-{marker}"
+        content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
+
+    write_file(zshrc_path, content)
+    log("  已禁用所有脚本配置块")
 
 
 def remove_auto_blocks(zshrc_path: Path) -> None:
-    """移除 AUTO 配置块"""
+    """移除脚本生成的配置块"""
     if not zshrc_path.exists():
         log("  .zshrc 不存在，跳过", "WARN")
         return
 
     content = read_file(zshrc_path)
-    # 移除从 ### AUTO- 开始到 ### END AUTO- 结束的整个块（包括这两行）
+
+    # 移除所有脚本生成的配置块
+    # 匹配: ### xxx START ### ... ### xxx END ###
     new_content = re.sub(
-        r"### AUTO-[^\n]*\n.*?### END AUTO-[^\n]*\n",
+        r"### [A-Z]+-?[A-Z]* START ###\n.*?### [A-Z]+-?[A-Z]* END ###\n?",
         "",
         content,
         flags=re.DOTALL,
     )
     write_file(zshrc_path, new_content)
-    log("  已移除 AUTO 配置块")
+    log("  已移除所有脚本配置块")
 
 
 def restore_original_zshrc_backup(backup_dir: Path, zshrc_path: Path) -> None:

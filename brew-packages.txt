@@ -3,6 +3,7 @@ git
 wget
 ripgrep
 fd
+eza
 fzf
 jq
 bat

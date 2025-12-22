@@ -300,8 +300,15 @@ def parse_brew_packages():
     return formulae, casks
 
 
-def ensure_line_in_file(file_path, line, marker=None):
-    """确保文件中包含某行内容，支持幂等操作"""
+def ensure_line_in_file(file_path, line, marker=None, prepend=False):
+    """确保文件中包含某行内容，支持幂等操作
+
+    Args:
+        file_path: 目标文件路径
+        line: 要添加的内容
+        marker: 标记名称（用于创建 ### marker START/END ### 块）
+        prepend: 是否插入到文件开头（默认追加到末尾）
+    """
     file_path = Path(file_path)
     if not file_path.exists():
         file_path.touch()
@@ -315,13 +322,24 @@ def ensure_line_in_file(file_path, line, marker=None):
         if start_marker in content:
             return  # 已经存在，不再重复添加
 
-        full_block = f"\n{start_marker}\n{line}\n{end_marker}\n"
-        with open(file_path, "a") as f:
-            f.write(full_block)
+        full_block = f"{start_marker}\n{line}\n{end_marker}\n"
+
+        if prepend:
+            # 插入到文件开头
+            new_content = full_block + "\n" + content
+            write_file_content(file_path, new_content)
+        else:
+            # 追加到文件末尾
+            with open(file_path, "a") as f:
+                f.write(f"\n{full_block}")
     else:
         if line.strip() not in content:
-            with open(file_path, "a") as f:
-                f.write(f"\n{line}\n")
+            if prepend:
+                new_content = line + "\n" + content
+                write_file_content(file_path, new_content)
+            else:
+                with open(file_path, "a") as f:
+                    f.write(f"\n{line}\n")
 
 
 # ================= Oh My Zsh Logic (Object Oriented) =================
@@ -504,11 +522,26 @@ def install_homebrew(arch):
         cmd = '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
         run_cmd(cmd, shell=True)
 
-        # Apple Silicon 芯片路径适配
-        if arch == "arm64" and Path("/opt/homebrew/bin/brew").exists():
-            eval_cmd = 'eval "$(/opt/homebrew/bin/brew shellenv)"'
-            run_cmd(eval_cmd, shell=True)
-            os.environ["PATH"] = f"/opt/homebrew/bin:{os.environ.get('PATH', '')}"
+    # Apple Silicon 芯片路径适配
+    if arch == "arm64" and Path("/opt/homebrew/bin/brew").exists():
+        # 添加到当前进程 PATH
+        os.environ["PATH"] = (
+            f"/opt/homebrew/bin:/opt/homebrew/sbin:{os.environ.get('PATH', '')}"
+        )
+
+        # 写入 .zshrc（确保 Homebrew 工具优先于系统工具）
+        homebrew_path_config = '''# Homebrew (Apple Silicon)
+eval "$(/opt/homebrew/bin/brew shellenv)"'''
+        ensure_line_in_file(
+            ZSHRC_PATH, homebrew_path_config, marker="HOMEBREW-PATH", prepend=True
+        )
+    elif arch != "arm64" and Path("/usr/local/bin/brew").exists():
+        # Intel Mac
+        homebrew_path_config = '''# Homebrew (Intel)
+eval "$(/usr/local/bin/brew shellenv)"'''
+        ensure_line_in_file(
+            ZSHRC_PATH, homebrew_path_config, marker="HOMEBREW-PATH", prepend=True
+        )
 
 
 def install_brew_packages():
@@ -715,6 +748,15 @@ fi"""
   eval "$(zoxide init zsh)"
 fi"""
     ensure_line_in_file(ZSHRC_PATH, zoxide_block, marker="AUTO-ZOXIDE")
+
+    # 现代化 CLI 工具别名（运行时检测，避免覆盖用户习惯）
+    aliases_block = """# 现代化 CLI 工具别名
+command -v bat >/dev/null && alias cat='bat --paging=never'
+command -v fd >/dev/null && alias find='fd'
+command -v rg >/dev/null && alias grep='rg'
+command -v htop >/dev/null && alias top='htop'
+command -v eza >/dev/null && alias ls='eza' && alias ll='eza -lah'"""
+    ensure_line_in_file(ZSHRC_PATH, aliases_block, marker="AUTO-ALIASES")
 
 
 def configure_fzf():
