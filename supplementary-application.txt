@@ -27,10 +27,15 @@ another-redis-desktop-manager
 arc
 notion
 obsidian
-1password
 shottr
 rectangle
 jordanbaird-ice # cask 刘海屏菜单栏管理工具
+drawio
+devtoys
+#补充工具
+buzz
+aldente
+baidunetdisk
 
 # 字体
 font-maple-mono-nf-cn # 等宽字体

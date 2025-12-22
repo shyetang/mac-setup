@@ -13,43 +13,59 @@ One-click deployment of a full-stack development environment, supporting intelli
 - ✅ **One-Click Initialization** - Automatically installs and configures the entire development environment (Node, Python, Rust, Go, Java)
 - ✅ **Manifest Management** - Declaratively manage all CLI and GUI software via `brew-packages.txt`; migration only requires one file
 - ✅ **Intelligent Config Merging** - Automatically detects existing Oh My Zsh configurations and intelligently merges plugin lists without breaking original settings
-- ✅ **Full Backup & Restore** - Auto-backup before changes; `rollback.sh env` provides a complete rollback, giving you peace of mind even when experimenting
+- ✅ **Full Backup & Restore** - Auto-backup before changes; `rollback` provides complete rollback capability
 - ✅ **Smart Idempotency** - Safe to run multiple times without duplicate installations or conflicts
+- ✅ **Dual Scripts** - Both Shell and Python implementations available
 
 ## 🎯 What's Included
 
-| Category        | Tools                                                                                 |
-| :-------------- | :------------------------------------------------------------------------------------ |
-| **System**      | Homebrew, Oh My Zsh, Starship, fzf, zoxide                                            |
-| **OMZ Plugins** | zsh-syntax-highlighting (Syntax Highlighting), zsh-autosuggestions (Auto Suggestions) |
-| **Languages**   | Python (pyenv), Node.js (fnm), Rust (rustup), Java (jenv), Go (Homebrew)              |
-| **Packages**    | Defined by `brew-packages.txt`                                                        |
+| Category        | Tools                                                      |
+| :-------------- | :--------------------------------------------------------- |
+| **System**      | Homebrew, Oh My Zsh, Starship, fzf, zoxide                 |
+| **OMZ Plugins** | zsh-syntax-highlighting, zsh-autosuggestions               |
+| **Languages**   | Python, Node.js, Java (Mise), Rust (rustup), Go (Homebrew) |
+| **Packages**    | Defined by `brew-packages.txt`                             |
 
 ## 🚀 Quick Start
 
-### 1. Clone & Configure
+### Option 1: Python Script (Recommended)
 
 ```bash
 git clone <repo-url> mac-setup && cd mac-setup
 
-# View/Edit software list
-cat brew-packages.txt
-vim brew-packages.txt  # Optional: Customize
+# Execute installation
+python3 mac-setup.py
+
+# Or skip confirmation
+python3 mac-setup.py --yes
 ```
 
-### 2. Execute Install
+### Option 2: Shell Script
 
 ```bash
 chmod +x setup-macos.sh
 ./setup-macos.sh
 ```
 
-### 3. Verify Environment
+### Verify Environment
 
 ```bash
 exec zsh  # Reload terminal
-python --version && node --version && java -version
+python --version && node --version && rustc --version && go version
 ```
+
+## 📦 Script Comparison
+
+| Feature            | `mac-setup.py` | `setup-macos.sh` |
+| ------------------ | -------------- | ---------------- |
+| Version Manager    | **Mise**       | pyenv/fnm/jenv   |
+| Rust Installation  | **rustup**     | rustup           |
+| Go Installation    | **Homebrew**   | Homebrew         |
+| CLI Arguments      | ✅ `--yes` etc | ❌               |
+| External Config    | ✅             | ✅               |
+| Smart Config Merge | ✅ OOP         | ✅ awk           |
+
+> 💡 **Recommended: `mac-setup.py`**: Mise is a modern all-in-one version manager replacing pyenv/fnm/jenv
 
 ## 📦 brew-packages.txt Format
 
@@ -70,105 +86,102 @@ google-chrome
 - One package name per line, other lines starting with `#` are comments
 - **File must end with a newline**
 
-### Default Software List
-
-#### CLI Tools (Formulae)
-
-| Software     | Description                             |
-| :----------- | :-------------------------------------- |
-| `git`        | Version control system                  |
-| `wget`       | File retrieval tool                     |
-| `ripgrep`    | Fast text search (10x faster than grep) |
-| `fd`         | Modern file finding (find alternative)  |
-| `fzf`        | Fuzzy finder (Ctrl+R history search)    |
-| `jq`         | JSON processor                          |
-| `bat`        | Cat clone with syntax highlighting      |
-| `htop`       | Interactive process viewer              |
-| `zoxide`     | Smarter cd command                      |
-| `cmake`      | Cross-platform build tool               |
-| `pkg-config` | Compile time library locating           |
-| `starship`   | Modern command prompt                   |
-
-#### GUI Apps (Casks)
-
-| Software             | Description                          |
-| :------------------- | :----------------------------------- |
-| `keka`               | File archiver                        |
-| `drawio`             | Diagramming tool                     |
-| `iina`               | Modern video player                  |
-| `baidunetdisk`       | Baidu Netdisk                        |
-| `appcleaner`         | Uninstaller                          |
-| `warp`               | Modern terminal (Rust-based)         |
-| `raycast`            | Spotlight replacement and launcher   |
-| `openinterminal`     | Open terminal from Finder            |
-| `devtoys`            | Developer utilities                  |
-| `popclip`            | Text selection actions               |
-| `google-chrome`      | Web browser                          |
-| `buzz`               | Audio to text (Whisper based)        |
-| `betterdisplay`      | Display management                   |
-| `aldente`            | Battery charge limiter               |
-| `visual-studio-code` | Code editor                          |
-| `zed`                | High-performance editor (Rust-based) |
-| `iterm2`             | Terminal emulator                    |
-
-> 💡 Add or remove software in `brew-packages.txt` as needed.
-
-### Optional/Recommended Software
-
-See `supplementary-application.txt` for a list of recommended tools like Cursor, Docker, OrbStack, etc.
+> 💡 See `supplementary-application.txt` for optional software recommendations
 
 ## ⚙️ Customization
 
-Edit the top of `setup-macos.sh`:
+### Python Script (`mac-setup.py`)
+
+Edit the configuration at the top:
+
+```python
+# Languages managed by Mise
+MISE_VERSIONS = {
+    "python": "3.12",
+    "node": "22",
+    "java": "temurin-21",
+}
+
+# Go and Rust use official tools
+# - Go: Homebrew installation
+# - Rust: rustup official tool
+```
+
+### Command Line Arguments
 
 ```bash
-# Set to 0 to skip specific language installation
-INSTALL_NODE=1
-INSTALL_PYTHON=1
-INSTALL_RUST=1
-INSTALL_JAVA=1
-INSTALL_GO=1
+python3 mac-setup.py --help
 
-# Version Strategy (Major version lock)
-PYTHON_MAJOR="3.12"   # → 3.12.x latest
-NODE_MAJOR="22"       # → 22.x latest
-JAVA_MAJOR="21"       # → 21 LTS
-# Go is managed by Homebrew, always latest
+# Available options:
+#   --yes, -y       Skip confirmation prompts
+#   --no-starship   Don't use Starship theme
+#   --dry-run       Simulation only
 ```
 
 ## 🔄 Rollback
 
-| Mode     | Command              | Effect                                                                        |
-| :------- | :------------------- | :---------------------------------------------------------------------------- |
-| **soft** | `./rollback.sh soft` | Disables config blocks (deletes nothing)                                      |
-| **env**  | `./rollback.sh env`  | Removes configs, deletes language environments, restores original settings ✨ |
-| **full** | `./rollback.sh full` | Uninstalls all software (High Risk)                                           |
+### Python Rollback (For use with `mac-setup.py`)
+
+```bash
+python3 rollback.py --mode soft   # Disable config blocks
+python3 rollback.py --mode env    # Delete env directories ✨
+python3 rollback.py --mode full   # Full rollback (High Risk)
+```
+
+### Shell Rollback (For use with `setup-macos.sh`)
+
+```bash
+./rollback.sh soft   # Disable config blocks
+./rollback.sh env    # Delete env directories
+./rollback.sh full   # Full rollback
+```
+
+| Mode     | Effect                                            |
+| :------- | :------------------------------------------------ |
+| **soft** | Disables config blocks (deletes nothing)          |
+| **env**  | Removes configs, deletes language environments ✨ |
+| **full** | Uninstalls all software (High Risk)               |
 
 > 💡 **Recommended: env mode**: Completely restores the state to before the script was run.
 
 ## 🔧 Troubleshooting
 
-### Homebrew Install Failed/Network Issues
+### Homebrew Install Failed
 
-Use the manual install command or check your network connection to GitHub.
+```bash
+# Check network
+ping -c 3 github.com
 
-### Python/Node Version Not Found
+# Manual install
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-Check available versions with `pyenv install -l` or `fnm list-remote` and update the versions in `setup-macos.sh`.
+# Apple Silicon PATH
+echo 'export PATH="/opt/homebrew/bin:$PATH"' >> ~/.zshrc
+```
 
 ### .zshrc Config Issues
 
-Check `~/.mac-setup-backup/` for backups and restore if necessary, or run `./rollback.sh env`.
+```bash
+# Check backups
+ls -la ~/.mac-setup-backup/
+
+# Restore backup
+cp ~/.mac-setup-backup/original-.zshrc.latest ~/.zshrc
+
+# Or run rollback
+python3 rollback.py --mode env
+```
 
 ## 📁 File Descriptions
 
-| File                            | Purpose                    |
-| :------------------------------ | :------------------------- |
-| `setup-macos.sh`                | Main installation script   |
-| `rollback.sh`                   | 3-level rollback script    |
-| `brew-packages.txt`             | Package configuration list |
-| `supplementary-application.txt` | Optional software list     |
-| `test-backup-restore.sh`        | Backup/Restore test script |
+| File                            | Purpose                          |
+| :------------------------------ | :------------------------------- |
+| `mac-setup.py`                  | **Python install (Recommended)** |
+| `rollback.py`                   | **Python rollback script**       |
+| `setup-macos.sh`                | Shell installation script        |
+| `rollback.sh`                   | Shell rollback script            |
+| `brew-packages.txt`             | Package configuration list       |
+| `supplementary-application.txt` | Optional software list           |
 
 ## 🌍 Compatibility
 

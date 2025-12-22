@@ -14,23 +14,18 @@ starship
 
 # ===== Casks (GUI 应用) =====
 keka
-drawio
 iina
-baidunetdisk
 appcleaner
 warp
 raycast
 openinterminal
-devtoys
 popclip
 google-chrome
-buzz
 betterdisplay
-aldente
 visual-studio-code
 zed
 iterm2
 switchhosts
-
-
-
+jordanbaird-ice
+battery-toolkit
+font-maple-mono-nf-cn
